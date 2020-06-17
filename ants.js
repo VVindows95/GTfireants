@@ -15,11 +15,9 @@ turnFactor = 1; // from keepWithinBounds(ant)
 speedLimit = 15; // from limitSpeed()
 minDistance = 20; // The distance to stay away from other ants from avoidOthers()
 
-var xVelocity = ant.avgDX;
-var yVelocity = ant.avgDY;
+var fps = 1;
 
-
-var fps, fpsInterval, startTime, now, then, elapsed;
+var fpsInterval, startTime, now, then, elapsed;
 
 var ants = [];
 
@@ -65,7 +63,7 @@ function animationLoop() // Animation Function
 
 Window.onload = () => // Initialization Function
 {
-  fpsInterval = 10000 / fps;
+  fpsInterval = 100000 / fps;
   then = Date.now();
   startTime = then;
   animationLoop();
@@ -199,7 +197,7 @@ function drawAnt(ctx, ant) {
   ctx.translate(ant.x, ant.y);
   ctx.rotate(angle);
   ctx.translate(-ant.x, -ant.y);
-  ctx.fillStyle = "#558cf4";
+  ctx.fillStyle = "#ff0000";
   ctx.beginPath();
   ctx.moveTo(ant.x, ant.y);
   ctx.lineTo(ant.x - 15, ant.y + 5);
