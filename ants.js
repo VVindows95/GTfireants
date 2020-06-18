@@ -164,6 +164,14 @@ function matchVelocity(ant) {
     ant.dy += (avgDY - ant.dy) * matchingFactor;
   }
 }
+// Trajectory Saving 
+const fs = require('fs')
+
+let data = "Learning how to write in a file."
+
+fs.writeFile('AntData.txt', ant.dx + ant.dy , (err) => {
+  if (err) throw err;
+})
 
 // Rule 4* Constrain a ant to within the window. If it gets too close to an edge,
 // nudge it back in and reverse its direction.
