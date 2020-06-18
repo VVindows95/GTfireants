@@ -15,7 +15,7 @@ turnFactor = 1; // from keepWithinBounds(ant)
 speedLimit = 15; // from limitSpeed()
 minDistance = 20; // The distance to stay away from other ants from avoidOthers()
 
-var fps = 1;
+var fps = 1000;
 
 var fpsInterval, startTime, now, then, elapsed;
 
@@ -30,6 +30,14 @@ function sizeCanvas() {
   height = window.innerHeight;
   canvas.width = width;
   canvas.height = height;
+}
+
+function randn_bm()
+{
+  var u = 0, v = 0;
+  while(u === 0) u = Math.random();
+  while(v === 0) v = Math.random();
+  return Math.sqrt(-2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
 }
 
 // Initialization step. FUTURE TODO: make sure that the old bots are cleared as well
@@ -110,7 +118,7 @@ function flyTowardsCenter(ant) {
   if (numNeighbors) {
     centerX = centerX / numNeighbors;
     centerY = centerY / numNeighbors;
-
+    // Updates Velocity
     ant.dx += (centerX - ant.x) * centeringFactor;
     ant.dy += (centerY - ant.y) * centeringFactor;
   }
