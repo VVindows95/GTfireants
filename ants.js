@@ -147,6 +147,7 @@ function matchVelocity(ant) {
   let avgDX = 0;
   let avgDY = 0;
   let numNeighbors = 0;
+  console.log("Number of Total Ants :" + numAnts);
 
   for (let otherAnt of ants) {
     if (distance(ant, otherAnt) < visualRange) {
@@ -164,14 +165,8 @@ function matchVelocity(ant) {
     ant.dy += (avgDY - ant.dy) * matchingFactor;
   }
 }
-// Trajectory Saving 
-const fs = require('fs')
 
-let data = "Learning how to write in a file."
 
-fs.writeFile('AntData.txt', ant.dx + ant.dy , (err) => {
-  if (err) throw err;
-})
 
 // Rule 4* Constrain a ant to within the window. If it gets too close to an edge,
 // nudge it back in and reverse its direction.
@@ -273,7 +268,7 @@ window.onload = () => {
 
   // Schedule the main animation loop
   window.requestAnimationFrame(animationLoop);
-};
+}
 
 // Intearaction with the html
 
