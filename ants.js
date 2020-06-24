@@ -21,6 +21,15 @@ var fpsInterval, startTime, now, then, elapsed;
 
 var ants = [];
 
+var fs = require("fs");
+console.log("Going to write into existing file");
+// Open a new file with name input.txt and write Simply Easy Learning! to it.
+fs.writeFile('AntData.txt', 'Simply Easy Learning!', function(err) {
+   if (err) {
+      return console.error(err);
+   }
+   console.log("Data written successfully!");
+
 // Called initially and whenever the window resizes to update the canvas
 // size and width/height variables.
 // I delete the original code which call this becase this will make it full screen
@@ -148,6 +157,9 @@ function matchVelocity(ant) {
   let avgDY = 0;
   let numNeighbors = 0;
   console.log("Number of Total Ants :" + numAnts);
+  console.log("Number of nearby Ants :" + numNeighbors);
+  console.log("X Velocity of Ant :" + ant.dx);
+  console.log("Y Velocity of Ant :" + ant.dy);
 
   for (let otherAnt of ants) {
     if (distance(ant, otherAnt) < visualRange) {
@@ -274,9 +286,10 @@ window.onload = () => {
 
 // old style
 document.getElementById("reset").onclick = function(){
-  console.log("reset Clicked");
+  console.log("Reset Clicked");
   initAnts();
 }
+
 
 // for slider
 document.getElementById("slider1").oninput = function() {

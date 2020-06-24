@@ -49,8 +49,11 @@
 	<div id="fps" style="position: absolute; top: 70px; left: 10px;"></div>
 
 	<center>
-		<button id="reset">Reset
-		</button>
+		<button id="reset">Reset</button>
+	</center>
+
+	<center>
+	<button id="down-data">Download Ant Data</button>
 	</center>
 
 	<center>
@@ -93,7 +96,23 @@
 	</center>
 </b>
 
-<script src="./ants.js"></script> 
+<label>Filename</label>
+<input type="text" id="filename" value="AntData.txt"/>
+<script src="ants.js"></script> 
+<script src="./FileSaver.min.js"></script>
+
+<script>
+document.getElementById("down-data").addEventListener("click", function(){
+	var text = document.getElementById("demo4").value;
+	var filename = document.getElementById("filename").value;
+
+	var blob = new Blob([text], {
+		type: "text/plain;charset=utf-8"
+	});
+	saveAs(blob, filename);
+}, false);
+</script>
+
 
 </body>
 </html>
