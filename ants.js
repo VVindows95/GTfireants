@@ -21,18 +21,8 @@ var fpsInterval, startTime, now, then, elapsed;
 
 var ants = [];
 
-var fs = require("fs");
-console.log("Going to write into existing file");
-// Open a new file with name input.txt and write Simply Easy Learning! to it.
-fs.writeFile('AntData.txt', 'Simply Easy Learning!', function(err) {
-   if (err) {
-      return console.error(err);
-   }
-   console.log("Data written successfully!");
-
 // Called initially and whenever the window resizes to update the canvas
 // size and width/height variables.
-// I delete the original code which call this becase this will make it full screen
 function sizeCanvas() {
   const canvas = document.getElementById("ants");
   width = window.innerWidth;
@@ -40,6 +30,8 @@ function sizeCanvas() {
   canvas.width = width;
   canvas.height = height;
 }
+
+// Creates a random generator based off the 99.7-95-68 rule, aka the Empirical Rule
 
 function randn_bm()
 {
@@ -105,11 +97,12 @@ function nClosestAnts(ant, n) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// RULES
+// RULES - Separation, Alignment, and Cohesion
 ////////////////////////////////////////////////////////////////////////////////
 
 // Rule 1: Find the center of mass of the other ants and adjust velocity slightly to
 // point towards the center of mass.
+// Cohesion
 function flyTowardsCenter(ant) {
 
   let centerX = 0;
@@ -134,6 +127,7 @@ function flyTowardsCenter(ant) {
 }
 
 // Rule 2: Move away from other ants that are too close to avoid colliding
+// Separation
 function avoidOthers(ant) {
   let moveX = 0;
   let moveY = 0;
@@ -152,6 +146,7 @@ function avoidOthers(ant) {
 
 // Rule 3: Find the average velocity (speed and direction) of the other ants and
 // adjust velocity slightly to match.
+// Alignment
 function matchVelocity(ant) {
   let avgDX = 0;
   let avgDY = 0;
@@ -291,13 +286,14 @@ document.getElementById("reset").onclick = function(){
 }
 
 
-// for slider
+// Slider Data for the Avoidance Factor
 document.getElementById("slider1").oninput = function() {
-  document.getElementById("demo1").innerHTML = this.value+"%";
+  document.getElementById("demo1").innerHTML = this.value;
   avoidFactor = this.value / 100;
   console.log("Avoidance Factor changed to ", avoidFactor);
 }
 
+// Slider Data for the Number of Ants Factor
 document.getElementById("slider2").oninput = function() {
   document.getElementById("demo2").innerHTML = this.value;
   numAnts = this.value;
@@ -305,6 +301,7 @@ document.getElementById("slider2").oninput = function() {
   console.log("# of ants changed to  ", numAnts);
 }
 
+// Slider Data for the Visual Range Factor
 document.getElementById("slider3").oninput = function() {
   document.getElementById("demo3").innerHTML = this.value;
   visualRange = this.value;
@@ -312,6 +309,7 @@ document.getElementById("slider3").oninput = function() {
   console.log("Visual Range changed to  ", visualRange);
 }
 
+// Slider Data for the Centering Factor
 document.getElementById("slider4").oninput = function() {
   document.getElementById("demo4").innerHTML = this.value;
   centeringFactor = this.value / 1000;
@@ -319,6 +317,7 @@ document.getElementById("slider4").oninput = function() {
   console.log("Centering Factor changed to  ", centeringFactor);
 }
 
+// Slider Data for the Speed Matching Factor
 document.getElementById("slider5").oninput = function() {
   document.getElementById("demo5").innerHTML = this.value;
   matchingFactor = this.value / 100;
@@ -326,6 +325,7 @@ document.getElementById("slider5").oninput = function() {
   console.log("Speed Matching Factor changed to  ", matchingFactor);
 }
 
+// Slider Data for the Canvas Width Factor
 document.getElementById("slider6").oninput = function() {
   document.getElementById("demo6").innerHTML = this.value;
   document.getElementById("ants").width = this.value;
