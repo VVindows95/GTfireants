@@ -70,8 +70,8 @@ function animationLoop() // Animation Function
   }
 }
 
-Window.onload = () => // Initialization Function
-{
+window.onload = () => { // Initialization Function
+  
   fpsInterval = 100000 / fps;
   then = Date.now();
   startTime = then;
@@ -290,6 +290,7 @@ document.getElementById("reset").onclick = function(){
 document.getElementById("slider1").oninput = function() {
   document.getElementById("demo1").innerHTML = this.value;
   avoidFactor = this.value / 100;
+  initAnts();
   console.log("Avoidance Factor changed to ", avoidFactor);
 }
 
