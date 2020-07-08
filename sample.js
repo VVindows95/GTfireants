@@ -10,7 +10,14 @@ turnFactor = 1;
 speedLimit = 15; 
 minDistance = 20;
 initAnts();
+runLoop();
 
+var fs = require('fs');
+fs.writeFile('antData.txt','Number of Ants / Ant Velocity: ', function(err){
+	if(err){
+	return console.log(err);
+	}
+});
 
 function initAnts() {
   antVelocity = 0.08;
@@ -20,11 +27,12 @@ function initAnts() {
     ants[i] = {
       x: Math.random() * width,
       y: Math.random() * height,
-      dx: Math.random() * 10 - 5,
-      dy: Math.random() * 10 - 5,
+      u: Math.random(),
+      v: Math.random(),
       history: [],
     };
   }
+
 }
 
 function distance(ant1, ant2) {
@@ -43,42 +51,20 @@ function nClosestAnts(ant, n) {
   return sorted.slice(1, n + 1);
 }
 
-function flyTowardsCenter(ant) {
-
-  let centerX = 0;
-  let centerY = 0;
-  let numNeighbors = 0;
-
-  for (let otherAnt of ants) {
-    if (distance(ant, otherAnt) < visualRange) {
-      centerX += otherAnt.x;
-      centerY += otherAnt.y;
-      numNeighbors += 1;
-    }
-  }
-
-  if (numNeighbors) {
-    centerX = centerX / numNeighbors;
-    centerY = centerY / numNeighbors;
-    // Updates Velocity
-    ant.dx += (centerX - ant.x) * centeringFactor;
-    ant.dy += (centerY - ant.y) * centeringFactor;
-  }
-}
 
 function keepWithinBounds(ant) {
 
   if (ant.x < margin) {
-    ant.dx += turnFactor;
+    ant.u += turnFactor;
   }
   if (ant.x > width - margin) {
-    ant.dx -= turnFactor
+    ant.u -= turnFactor
   }
   if (ant.y < margin) {
-    ant.dy += turnFactor;
+    ant.v += turnFactor;
   }
   if (ant.y > height - margin) {
-    ant.dy -= turnFactor;
+    ant.v -= turnFactor;
   }
 }
 
@@ -94,51 +80,58 @@ function avoidOthers(ant) {
     }
   }
 
-  ant.dx += moveX * avoidFactor;
-  ant.dy += moveY * avoidFactor;
+  ant.u += moveX * avoidFactor;
+  ant.v += moveY * avoidFactor;
 }
 
 function matchVelocity(ant) {
-  let avgDX = 0;
-  let avgDY = 0;
+  let avgU = 0;
+  let avgV = 0;
   let numNeighbors = 0;
+  console.log("Number of Total Ants :" + numAnts);
+  console.log("X Velocity of Ant :" + ant.u);
+  console.log("Y Velocity of Ant :" + ant.v);
+
+  fs.appendFile('antData.txt',numAnts.toString() + ' / ' + ant.u.toString(), function(err){
+	if(err){
+	return console.log(err);
+	}
+	console.log("Number of Ants and Ant Velocity Logged Successfully!");
+});
 
   for (let otherAnt of ants) {
     if (distance(ant, otherAnt) < visualRange) {
-      avgDX += otherAnt.dx;
-      avgDY += otherAnt.dy;
+      avgU += otherAnt.u;
+      avgV += otherAnt.v;
       numNeighbors += 1;
     }
-  }
-
-  if (numNeighbors) {
-    avgDX = avgDX / numNeighbors;
-    avgDY = avgDY / numNeighbors;
-
-    ant.dx += (avgDX - ant.dx) * matchingFactor;
-    ant.dy += (avgDY - ant.dy) * matchingFactor;
   }
 }
 
 function limitSpeed(ant) {
 
-  const speed = Math.sqrt(ant.dx * ant.dx + ant.dy * ant.dy);
+  const speed = Math.sqrt(ant.u * ant.u + ant.v * ant.v);
   if (speed > speedLimit) {
-    ant.dx = (ant.dx / speed) * speedLimit;
-    ant.dy = (ant.dy / speed) * speedLimit;
+    ant.u = (ant.u / speed) * speedLimit;
+    ant.v = (ant.v / speed) * speedLimit;
   }
 }
 
-var fs = require('fs');
-fs.writeFile('antData1.txt','Number of Ants: ', function(err){
-	if(err){
-	return console.log(err);
-	}
-});
+function runLoop() {
+  // Update each ant
+  for (let ant of ants) {
+    avoidOthers(ant);
+    matchVelocity(ant);
+    limitSpeed(ant);
+    keepWithinBounds(ant);
 
-fs.appendFile('antData1.txt',ant.dx, function(err){
-	if(err){
-	return console.log(err);
-	}
-	console.log("Number of Ants Logged Successfully!");
-});
+    // Update the position based on the current velocity
+    ant.x += ant.u;
+    ant.y += ant.v;
+    ant.history.push([ant.x, ant.y])
+    ant.history = ant.history.slice(-50);
+  }
+ }
+
+// \n For Creating Breaks --> Is effectively a 'tab' button
+
