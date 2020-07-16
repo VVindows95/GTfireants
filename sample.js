@@ -113,8 +113,8 @@ function matchVelocity(ant) {
 }
 
 function randomWalk(ant) {
-  ant.u = ant.x * randn_bm();
-  ant.v = ant.y * randn_bm();
+  ant.u = ant.x + randn_bm();
+  ant.v = ant.y + randn_bm();
 }
 
 
