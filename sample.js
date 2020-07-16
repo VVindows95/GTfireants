@@ -19,7 +19,8 @@ fs.writeFile('antData.txt','Number of Ants / X | Y Ant Velocity: ' + numAnts.toS
 
 initAnts();
 runLoop();
-updateData();
+
+// updateData();
 
 
 function initAnts() {
@@ -98,7 +99,6 @@ function matchVelocity(ant) {
   let avgU = 0;
   let avgV = 0;
   let numNeighbors = 0;
-  console.log("Number of Total Ants :" + numAnts);
   console.log("X Velocity of Ant :" + ant.u);
   console.log("Y Velocity of Ant :" + ant.v);
 
@@ -127,18 +127,24 @@ function limitSpeed(ant) {
   }
 }
 
-function updateData() {
+/* function updateData() {
 
-for (var i = 0; i >= 6; i++) {	
-	fs.appendFile('antData.txt', " " + ant.u.toString() + ' / '  + ant.v.toString(), function(err){
+var uTempData = " Ant u Variable Snapshot = ";
+var vTempData = " Ant v Variable Snapshot = ";
+
+for (var i = 0; i = 6; i++) {	
+	uTempData += ant.u.toString();
+	vTempData += ant.v.toString();
+}
+	fs.appendFile('antData.txt', " " + uTempData + ' / '  + vTempData, function(err){
 	if(err)
 	{
 	return console.log(err);
 	}
   })
-}
 	console.log("Data has been successfully logged for Ant!");
 }
+*/
 
 function runLoop() {
   // Update each ant
@@ -148,7 +154,7 @@ function runLoop() {
     limitSpeed(ant);
     keepWithinBounds(ant);
     randomWalk(ant);
-    updateData();
+   // updateData();
 
 
     // Update the position based on the current velocity
@@ -156,6 +162,21 @@ function runLoop() {
     ant.y += ant.v;
     ant.history.push([ant.x, ant.y]);
     ant.history = ant.history.slice(-50);
+
+	var uTempData = " Ant u Variable Snapshot = ";
+	var vTempData = " Ant v Variable Snapshot = ";
+
+for (var i = 0; i = 6; i++) {	
+	uTempData += ant.u;
+	vTempData += ant.v;
+}
+	fs.appendFile('antData.txt', " " + uTempData + ' / '  + vTempData, function(err){
+	if(err)
+	{
+	return console.log(err);
+	}
+  });
+	console.log("Data has been successfully logged for Ant!");
 
 }}
 
