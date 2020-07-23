@@ -7,9 +7,6 @@ turnFactor = 1;
 speedLimit = 15;
 minDistance = 20; 
 
-
-var ants = [];
-
 function randn_bm()
 {
   var u = 0, v = 0;
