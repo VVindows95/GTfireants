@@ -6,6 +6,31 @@ margin = 100;
 turnFactor = 1; 
 speedLimit = 15;
 minDistance = 20; 
+antMass = 1;
+antForce = 1;
+tInitial = 0;
+tCurrent = 1;
+deltaT = 1;
+
+
+//numTrials = 2;
+//timeStamp = 0;
+
+/**
+
+fs = require('fs');
+fs.writeFile('AntData.txt', 'TimeStamp | X Position | Y Position | X Velocity | Y Velocity', function (err) {
+  if (err) return console.log(err);
+  console.log('AntData.txt has been created!');
+});
+
+for (i = 0; i < numTrials; i++)
+{
+  timeStamp += 1;
+  animationLoop();
+}
+
+**/
 
 function randn_bm()
 {
@@ -23,9 +48,8 @@ function initAnts() {
     ants[i] = {
       x: Math.random() * width,
       y: Math.random() * height,
-      u: 1 * randn_bm(),
-      v: 1 * randn_bm(),
-      history: [],
+      u: 1,
+      v: 1,
     };
   }
 }
@@ -68,18 +92,32 @@ function drawAnt(ctx, ant) {
 
 }
 
+function timeUpdate() 
+{
+  tCurrent += 1;
+  deltaT = tCurrent - tInitial;
+}
+
 // **Main animation loop
 function animationLoop() {
   // Update each ant
   for (let ant of ants) {
     keepWithinBounds(ant);
+    timeUpdate();
 
     // Update the position based on the current velocity
-    ant.x += ant.u;
-    ant.y += ant.v;
-    ant.history.push([ant.x, ant.y])
-    ant.history = ant.history.slice(-50);
+    ant.x += deltaT * ant.u;
+    ant.y += deltaT * ant.v;
+    ant.u += deltaT * (antForce / antMass);
+    ant.v += deltaT * (antForce / antMass);
   }
+  
+/**
+  fs.appendFile('AntData.txt', '\n' + timeStamp + ' ' + ant.x.toString() + ' ' + ant.y.toString() + ' ' + ant.u.toString() + ' ' + ant.v.toString(), function (err) {
+    if (err) return console.log(err);
+    console.log('Ant Data has been successfully logged to AntData.txt!');
+});
+**/
 
   // Clear the canvas and redraw all the ants in their current positions
   const ctx = document.getElementById("ants").getContext("2d");
