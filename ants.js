@@ -105,13 +105,12 @@ function animationLoop() {
     keepWithinBounds(ant);
     timeUpdate();
 
-    // Update the position based on the current velocity
     ant.x += deltaT * ant.u;
     ant.y += deltaT * ant.v;
-    ant.u += deltaT * (antForce / antMass);
-    ant.v += deltaT * (antForce / antMass);
+    ant.u += deltaT * antForce / antMass;
+    ant.v += deltaT * antForce / antMass;
   }
-  
+
 /**
   fs.appendFile('AntData.txt', '\n' + timeStamp + ' ' + ant.x.toString() + ' ' + ant.y.toString() + ' ' + ant.u.toString() + ' ' + ant.v.toString(), function (err) {
     if (err) return console.log(err);
