@@ -2,15 +2,12 @@ var width = 800;
 let height = 400;
 
 numAnts = 1;
-margin = 100; 
-turnFactor = 1; 
+margin = 100;
 speedLimit = 15;
 minDistance = 20; 
-antMass = 1;
-antForce = 1;
-tInitial = 0;
-tCurrent = 1;
-deltaT = 1;
+antMass = 0;
+antForce = 0;
+deltaT = 0.25;
 
 
 //numTrials = 2;
@@ -41,37 +38,36 @@ function randn_bm()
 }
 
 function initAnts() {
-  antVelocity = 0.08;
   console.log("Initializing", numAnts);
   ants = [];
   for (var i = 0; i < numAnts; i += 1) {
     ants[i] = {
       x: Math.random() * width,
       y: Math.random() * height,
-      u: 1,
-      v: 1,
+      u: Math.random(),
+      v: Math.random(),
     };
   }
 }
 
 window.onload = () => { // Initialization Function
   initAnts();
-  window.requestAnimationFrame(animationLoop);
+  animationLoop();
 };
 
 function keepWithinBounds(ant) {
 
   if (ant.x < margin) {
-    ant.u += turnFactor;
+    ant.u = -ant.u;
   }
   if (ant.x > width - margin) {
-    ant.u -= turnFactor
+    ant.u = -ant.u;
   }
   if (ant.y < margin) {
-    ant.v += turnFactor;
+    ant.v = -ant.v;
   }
   if (ant.y > height - margin) {
-    ant.v -= turnFactor;
+    ant.v = -ant.v;
   }
 }
 
@@ -92,23 +88,18 @@ function drawAnt(ctx, ant) {
 
 }
 
-function timeUpdate() 
-{
-  tCurrent += 1;
-  deltaT = tCurrent - tInitial;
-}
-
 // **Main animation loop
 function animationLoop() {
   // Update each ant
   for (let ant of ants) {
     keepWithinBounds(ant);
-    timeUpdate();
 
     ant.x += deltaT * ant.u;
     ant.y += deltaT * ant.v;
-    ant.u += deltaT * antForce / antMass;
-    ant.v += deltaT * antForce / antMass;
+/**
+    ant.u += deltaT * (antForce / antMass);
+    ant.v += deltaT * (antForce / antMass);
+**/
   }
 
 /**
@@ -141,6 +132,13 @@ document.getElementById("slider2").oninput = function() {
   numAnts = this.value;
   initAnts();
   console.log("# of ants changed to  ", numAnts);
+}
+
+document.getElementById("slider3").oninput = function() {
+  document.getElementById("demo3").innerHTML = this.value;
+  deltaT = this.value;
+  initAnts();
+  console.log("deltaT changed to  ", deltaT);
 }
 
 // Slider Data for the Canvas Width Factor
