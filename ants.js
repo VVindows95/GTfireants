@@ -24,13 +24,25 @@ fs.writeFile('AntData.txt', 'TimeStamp | X Position | Y Position | X Velocity | 
 
 **/
 
+// RANDOM WALK STUFF
+
 function randn_bm()
 {
-  var u = 0, v = 0;
-  while(u === 0) u = Math.random();
+  let u = 0, v = 0;
+  while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
   while(v === 0) v = Math.random();
-  return Math.sqrt(-2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+  let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+  num = num / 10.0 + 0.5; // Translate to 0 -> 1
+  if (num > 1 || num < 0) return randn_bm(); // resample between 0 and 1
 }
+
+function randomWalk() 
+{
+  randn_bm();
+  var movement = num * 10;
+}
+
+// RANDOM WALK END
 
 function initAnts() 
 {
@@ -79,6 +91,7 @@ function keepWithinBounds(ant)
   {
     ant.v = -ant.v;
   }
+
 }
 
 // Drawing to canvas
@@ -106,13 +119,14 @@ function animationLoop()
   {
 
     keepWithinBounds(ant);
+    randomWalk();
 
     ant.x += deltaT * ant.u;
     ant.y += deltaT * ant.v;
-    ant.u += deltaT * (antForce / antMass);
-    ant.v += deltaT * (antForce / antMass);
+    ant.u += deltaT * movement;
+    ant.v += deltaT * movement;
   }
-
+// saving for later     ant.u += deltaT * (antForce / antMass); ant.v += deltaT * (antForce / antMass);
 
 /**
   fs.appendFile('AntData.txt', '\n' + timeStamp + ' ' + ant.x.toString() + ' ' + ant.y.toString() + ' ' + ant.u.toString() + ' ' + ant.v.toString(), function (err) {
