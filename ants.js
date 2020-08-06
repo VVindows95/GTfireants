@@ -1,46 +1,55 @@
+// Canvas Variables
 var width = 800;
 var height = 400;
+var margin = 0;
 
-var numAnts = 1;
-var margin = 5;
+// Ant Variables
+var movement = 1;
 var speedLimit = 15;
 var minDistance = 20; 
-var antMass = 1;
-var antForce = 0;
-var deltaT = 1;
+var antMass = 10;
+var antForce = 1;
+var antResultant = 1;
+var walkMultipler = 5;
 
+// Trajectory Saving Variables
+var numTrials = 1000;
+var timeStamp = 1;
 
-//numTrials = 2;
-//timeStamp = 0;
+// User Controllable Variables
+var numAnts = 1;
+var num = 1;
+var deltaT = .05;
+var antAttraction = 0;
+var antCollision = 0;
+var antDamping = 0;
 
-/**
+initAnts();
 
-fs = require('fs');
+var fs = require('fs');
 fs.writeFile('AntData.txt', 'TimeStamp | X Position | Y Position | X Velocity | Y Velocity', function (err) {
   if (err) return console.log(err);
   console.log('AntData.txt has been created!');
 });
 
 
-**/
-
-// RANDOM WALK STUFF
-
-function randn_bm()
+for (var i = 0; i < numTrials; i++)
 {
-  let u = 0, v = 0;
-  while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-  while(v === 0) v = Math.random();
-  let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
-  num = num / 10.0 + 0.5; // Translate to 0 -> 1
-  if (num > 1 || num < 0) return randn_bm(); // resample between 0 and 1
+  animationLoop();
+  timeStamp++;
 }
 
-function randomWalk() 
-{
-  randn_bm();
-  var movement = num * 10;
+// RANDOM WALK START
+
+// Standard Normal variate using Box-Muller transform.
+function randn_bm() {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    return (walkMultipler * (Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v )));
 }
+
+
 
 // RANDOM WALK END
 
@@ -52,25 +61,19 @@ function initAnts()
     ants[i] = {
       x: Math.random() * width,
       y: Math.random() * height,
-      u: 1,
-      v: 1,
+      u: 0,
+      v: 0,
     };
   }
 }
 
+/**
 window.onload = () => // Initialization Function
 { 
   initAnts();
   animationLoop(); //Disable for NodeJS Trajectory Saving
-
-  /** Enable for NodeJS Trajectory Saving
-  for (i = 0; i < numTrials; i++)
-  {
-    timeStamp += 1;
-    animationLoop();
-  }
-  **/
 };
+**/
 
 function keepWithinBounds(ant) 
 {
@@ -117,24 +120,23 @@ function animationLoop()
   // Update each ant
   for (let ant of ants) 
   {
-
     keepWithinBounds(ant);
-    randomWalk();
 
-    ant.x += deltaT * ant.u;
-    ant.y += deltaT * ant.v;
-    ant.u += deltaT * movement;
-    ant.v += deltaT * movement;
-  }
-// saving for later     ant.u += deltaT * (antForce / antMass); ant.v += deltaT * (antForce / antMass);
+    ant.u = ant.u + (deltaT * ((antMass / antForce) * randn_bm()));
+    ant.v = ant.v + (deltaT * ((antMass / antForce) * randn_bm()));
 
+    ant.x = ant.x + deltaT * ant.u;
+    ant.y = ant.y + deltaT * ant.v;
+
+    fs.appendFile('antData.txt', '\n' + timeStamp + " " + ant.x.toString() + " " + ant.y.toString() + " " + ant.u.toString() + " " + ant.v.toString(), function(err){
+    if(err) 
+    {
+    return console.log(err);
+    }
+  });
+    console.log('Ant Data at timeStamp: ' + timeStamp + ' has been successfully logged to AntData.txt!');
+  }}
 /**
-  fs.appendFile('AntData.txt', '\n' + timeStamp + ' ' + ant.x.toString() + ' ' + ant.y.toString() + ' ' + ant.u.toString() + ' ' + ant.v.toString(), function (err) {
-    if (err) return console.log(err);
-    console.log('Ant Data has been successfully logged to AntData.txt!');
-});
-**/
-
   // Clear the canvas and redraw all the ants in their current positions
   const ctx = document.getElementById("ants").getContext("2d");
   ctx.clearRect(0, 0, width, height);
@@ -142,9 +144,9 @@ function animationLoop()
     drawAnt(ctx, ant);
   }
   // Schedule the next frame
-  window.requestAnimationFrame(animationLoop); // Disable for NodeJS Trajectory Saving
-}
+  // window.requestAnimationFrame(animationLoop); // Disable for NodeJS Trajectory Saving
 
+/**
 document.getElementById("reset").onclick = function()
 {
   console.log("Reset Clicked");
@@ -169,6 +171,15 @@ document.getElementById("slider3").oninput = function()
   console.log("deltaT changed to  ", deltaT);
 };
 
+// Slider Data for the antMass Factor
+document.getElementById("slider4").oninput = function() 
+{
+  document.getElementById("demo4").innerHTML = this.value;
+  antMass = this.value;
+  initAnts();
+  console.log("Ant Mass changed to  ", antMass);
+};
+
 // Slider Data for the Canvas Width Factor
 document.getElementById("slider6").oninput = function() 
 {
@@ -179,3 +190,4 @@ document.getElementById("slider6").oninput = function()
   initAnts();
   console.log("Window width changed to  ", width);
 };
+**/
