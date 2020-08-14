@@ -4,59 +4,32 @@ var height = 400;
 var margin = 0;
 
 // Ant Variables
+var ants = [];
 var movement = 1;
 var speedLimit = 15;
 var minDistance = 20; 
 var antMass = 10;
-var antForce = 1;
+var antForce = 0;
 var antResultant = 1;
-var walkMultipler = 5;
+var walkMultipler = 1;
+var antAttraction = 1;
+var otherAnt = [];
 
 // Trajectory Saving Variables
-var numTrials = 1000;
+var numTrials = 5000;
 var timeStamp = 1;
 
 // User Controllable Variables
-var numAnts = 1;
+var numAnts = 10;
 var num = 1;
-var deltaT = .05;
-var antAttraction = 0;
-var antCollision = 0;
-var antDamping = 0;
-
-initAnts();
-
-var fs = require('fs');
-fs.writeFile('AntData.txt', 'TimeStamp | X Position | Y Position | X Velocity | Y Velocity', function (err) {
-  if (err) return console.log(err);
-  console.log('AntData.txt has been created!');
-});
-
-
-for (var i = 0; i < numTrials; i++)
-{
-  animationLoop();
-  timeStamp++;
-}
-
-// RANDOM WALK START
-
-// Standard Normal variate using Box-Muller transform.
-function randn_bm() {
-    var u = 0, v = 0;
-    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-    while(v === 0) v = Math.random();
-    return (walkMultipler * (Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v )));
-}
-
-
-
-// RANDOM WALK END
+var deltaT = 0.5;
+var antCollision = 1;
+var antDamping = 1;
+var antVisual = 20;
 
 function initAnts() 
 {
   console.log("Initializing", numAnts);
-  ants = [];
   for (var i = 0; i < numAnts; i += 1) {
     ants[i] = {
       x: Math.random() * width,
@@ -67,13 +40,44 @@ function initAnts()
   }
 }
 
-/**
-window.onload = () => // Initialization Function
-{ 
+window.onload = () => { 
+// Initialization Function 
   initAnts();
   animationLoop(); //Disable for NodeJS Trajectory Saving
-};
-**/
+}
+
+// initAnts();
+
+/**
+var fs = require('fs');
+fs.writeFile('AntData.txt', 'TimeStamp | X Position | Y Position | X Velocity | Y Velocity', function (err) {
+  if (err) return console.log(err);
+  console.log('AntData.txt has been created!');
+});
+*/
+
+/**
+for (var i = 0; i < numTrials; i++)
+{
+  animationLoop();
+  timeStamp++;
+}
+*/
+
+// RANDOM WALK START
+
+// Standard Normal variate using Box-Muller transform.
+function randn_bm() {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    return (Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v ));
+}
+
+
+
+// RANDOM WALK END
+
 
 function keepWithinBounds(ant) 
 {
@@ -95,6 +99,68 @@ function keepWithinBounds(ant)
     ant.v = -ant.v;
   }
 
+}
+
+function distance(ant1, ant2) {
+
+  return Math.sqrt(
+
+    (ant1.x - ant2.x) * (ant1.x - ant2.x) + 
+    (ant1.y - ant2.y) * (ant1.y - ant2.y),
+  );
+}
+
+function limitSpeed(ant) {
+  const speedLimit = 10;
+
+  const speed = Math.sqrt(ant.u * ant.u + ant.v * ant.v);
+
+  if (speed > speedLimit) {
+    ant.u = (ant.u / speed) * speedLimit;
+    ant.v = (ant.v / speed) * speedLimit;
+  }
+}
+
+function avoidOthers(ant) {
+
+  for (let otherAnt of ants) {
+
+    if (otherAnt !== ant) {
+
+      if (distance(ant, otherAnt) < antCollision) {
+
+        matchVelocity(ant);
+
+      }
+    }
+  }
+}
+
+function matchVelocity(ant) {
+
+  ant.u = otherAnt.u;
+  ant.v = otherAnt.v;
+}
+
+function antAttract(ant) {
+  var attractX = 0;
+  var attractY = 0;
+  var neighborAnts = 0;
+  for (let otherAnt of ants){
+    if(distance(ant, otherAnt) < antVisual) {
+        attractX += otherAnt.x;
+        attractY += otherAnt.y;
+        neighborAnts ++;
+    }
+  }
+
+  if (neighborAnts) {
+    attractX = attractX / neighborAnts;
+    attractY = attractY / neighborAnts;
+
+    ant.u += (attractX - ant.x) * antAttraction;
+    ant.v += (attractY - ant.y) * antAttraction;
+  }
 }
 
 // Drawing to canvas
@@ -120,23 +186,33 @@ function animationLoop()
   // Update each ant
   for (let ant of ants) 
   {
+    limitSpeed(ant);
     keepWithinBounds(ant);
+    avoidOthers(ant);
+    antAttract(ant);
 
-    ant.u = ant.u + (deltaT * ((antMass / antForce) * randn_bm()));
-    ant.v = ant.v + (deltaT * ((antMass / antForce) * randn_bm()));
+    // ant.u = ant.u + (deltaT * ((antMass / antForce) * randn_bm()));
+    // ant.v = ant.v + (deltaT * ((antMass / antForce) * randn_bm()));
 
-    ant.x = ant.x + deltaT * ant.u;
-    ant.y = ant.y + deltaT * ant.v;
+    ant.u += deltaT * (antForce / antMass);
+    ant.v += deltaT * (antForce / antMass);
 
+    ant.x += deltaT * (ant.u + walkMultipler * randn_bm());
+    ant.y += deltaT * (ant.v + walkMultipler * randn_bm());
+  }
+/**
     fs.appendFile('antData.txt', '\n' + timeStamp + " " + ant.x.toString() + " " + ant.y.toString() + " " + ant.u.toString() + " " + ant.v.toString(), function(err){
     if(err) 
     {
     return console.log(err);
     }
   });
-    console.log('Ant Data at timeStamp: ' + timeStamp + ' has been successfully logged to AntData.txt!');
+    Console.log('Ant Data at timeStamp: ' + timeStamp + ' has been successfully logged to AntData.txt!');
   }}
-/**
+
+
+*/
+
   // Clear the canvas and redraw all the ants in their current positions
   const ctx = document.getElementById("ants").getContext("2d");
   ctx.clearRect(0, 0, width, height);
@@ -144,9 +220,9 @@ function animationLoop()
     drawAnt(ctx, ant);
   }
   // Schedule the next frame
-  // window.requestAnimationFrame(animationLoop); // Disable for NodeJS Trajectory Saving
+  window.requestAnimationFrame(animationLoop); // Disable for NodeJS Trajectory Saving
+}
 
-/**
 document.getElementById("reset").onclick = function()
 {
   console.log("Reset Clicked");
@@ -176,8 +252,15 @@ document.getElementById("slider4").oninput = function()
 {
   document.getElementById("demo4").innerHTML = this.value;
   antMass = this.value;
-  initAnts();
   console.log("Ant Mass changed to  ", antMass);
+};
+
+// Slider Data for the antVisual Factor
+document.getElementById("slider5").oninput = function() 
+{
+  document.getElementById("demo5").innerHTML = this.value;
+  antVisual = this.value;
+  console.log("Ant Visual Radius changed to  ", antVisual);
 };
 
 // Slider Data for the Canvas Width Factor
@@ -190,4 +273,3 @@ document.getElementById("slider6").oninput = function()
   initAnts();
   console.log("Window width changed to  ", width);
 };
-**/
