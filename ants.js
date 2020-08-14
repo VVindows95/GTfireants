@@ -25,7 +25,7 @@ var num = 1;
 var deltaT = 0.5;
 var antCollision = 1;
 var antDamping = 1;
-var antVisual = 20;
+var antVisual = 1;
 
 function initAnts() 
 {
