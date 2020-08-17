@@ -8,8 +8,8 @@ var ants = [];
 var movement = 1;
 var speedLimit = 15;
 var minDistance = 20; 
-var antMass = 10;
-var antForce = 0;
+var antMass = 1;
+var antForce = 1;
 var antResultant = 1;
 var walkMultipler = 1;
 var antAttraction = 1;
@@ -24,8 +24,9 @@ var numAnts = 10;
 var num = 1;
 var deltaT = 0.5;
 var antCollision = 1;
-var antDamping = 1;
+var antFriction = 1;
 var antVisual = 1;
+var antFriction = antForce / 10;
 
 function initAnts() 
 {
@@ -142,6 +143,10 @@ function matchVelocity(ant) {
   ant.v = otherAnt.v;
 }
 
+function antDamping(ant) {
+  var antForce = antFriction / 10;
+}
+
 function antAttract(ant) {
   var attractX = 0;
   var attractY = 0;
@@ -190,12 +195,13 @@ function animationLoop()
     keepWithinBounds(ant);
     avoidOthers(ant);
     antAttract(ant);
+    antDamping(ant);
 
     // ant.u = ant.u + (deltaT * ((antMass / antForce) * randn_bm()));
     // ant.v = ant.v + (deltaT * ((antMass / antForce) * randn_bm()));
 
-    ant.u += deltaT * (antForce / antMass);
-    ant.v += deltaT * (antForce / antMass);
+    ant.u += deltaT * (antFriction / antMass);
+    ant.v += deltaT * (antFriction / antMass);
 
     ant.x += deltaT * (ant.u + walkMultipler * randn_bm());
     ant.y += deltaT * (ant.v + walkMultipler * randn_bm());
@@ -272,4 +278,12 @@ document.getElementById("slider6").oninput = function()
   ctx.clearRect(0, 0, width, height);
   initAnts();
   console.log("Window width changed to  ", width);
+};
+
+// Slider Data for the antFriction Factor
+document.getElementById("slider7").oninput = function() 
+{
+  document.getElementById("demo7").innerHTML = this.value;
+  antForce = this.value;
+  console.log("Ant Friction changed to  ", antForce);
 };
